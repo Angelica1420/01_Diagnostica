@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resolución Socrática - Diagnóstica Soporte Técnico</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=DM+Sans:wght@400&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+
+    <style>
+        html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #232E26; }
+        .deck-viewport { position: fixed; inset: 0; overflow: hidden; background: #232E26; }
+        .deck-stage {
+            position: absolute; left: 0; top: 0; width: 1920px; height: 1080px;
+            overflow: hidden; transform-origin: 0 0; background: #232E26;
+        }
+        .slide {
+            position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden;
+            display: block; visibility: hidden; opacity: 0; pointer-events: none; background: #232E26;
+        }
+        .slide.active, .slide.visible { visibility: visible; opacity: 1; pointer-events: auto; z-index: 1; }
+        img, video, canvas, svg { max-width: 100%; max-height: 100%; }
+        .deck-controls { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 1000; }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+        }
+        :root {
+            --bg-dark: #232E26;
+            --bg-cream: #EDE6D0;
+            --ink-cream: #F0E8D2;
+            --ink-cream-2: rgba(240, 232, 210, 0.58);
+            --ink-cream-3: rgba(240, 232, 210, 0.3);
+            --ink-dark: #1E2820;
+            --ink-dark-2: rgba(30, 40, 32, 0.6);
+            --accent-orange: #C07030;
+            --border-on-dark: rgba(240, 232, 210, 0.12);
+            --border-on-cream: rgba(30, 40, 32, 0.14);
+            --pad-x: 5.5vw;
+            --pad-y: 5.5vh;
+            --gap-lg: 4.5vh;
+            --gap-md: 2.8vh;
+            --gap-sm: 1.4vh;
+        }
+        h1, h2, h3, .display, .stat-value, .quote-mark, .quote-text {
+            font-family: 'Bricolage Grotesque', sans-serif;
+            margin: 0; padding: 0; color: var(--ink-cream);
+        }
+        p, li, .body-text {
+            font-family: 'DM Sans', sans-serif;
+            margin: 0; padding: 0; color: var(--ink-cream-2);
+        }
+        .label, .kicker, .chrome-text {
+            font-family: 'DM Mono', monospace;
+            text-transform: uppercase; letter-spacing: 0.12em;
+        }
+        .display { font-size: 10vw; font-weight: 800; line-height: 0.88; letter-spacing: -0.03em; }
+        .h1 { font-size: 7vw; font-weight: 800; line-height: 0.92; letter-spacing: -0.025em; }
+        .h2 { font-size: 4vw; font-weight: 700; line-height: 1.0; letter-spacing: -0.02em; }
+        .h3 { font-size: 2.4vw; font-weight: 600; line-height: 1.1; letter-spacing: -0.01em; }
+        .lead { font-size: 1.5vw; line-height: 1.55; }
+        .body-copy { font-size: 1.05vw; line-height: 1.65; }
+        .kicker { font-size: 0.7vw; color: var(--accent-orange); display: block; margin-bottom: var(--gap-sm); }
+        .label { font-size: 0.7vw; }
+        .slide.dark::before {
+            content: ''; position: absolute; right: 0; bottom: 0; width: 55%; height: 70%;
+            background: radial-gradient(ellipse at 70% 80%, rgba(122, 78, 36, 0.28) 0%, rgba(80, 50, 20, 0.14) 40%, transparent 70%);
+            z-index: 0; pointer-events: none;
+        }
+        .slide-content { position: relative; z-index: 1; padding: var(--pad-y) var(--pad-x); width: 100%; height: 100%; display: flex; flex-direction: column; }
+        .chrome-band { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-on-dark); padding-bottom: var(--gap-sm); margin-bottom: var(--gap-lg); color: var(--ink-cream-3); }
+        .foot-band { display: flex; justify-content: space-between; border-top: 1px solid var(--border-on-dark); padding-top: var(--gap-sm); margin-top: auto; color: var(--ink-cream-3); }
+        .info-card { background: var(--bg-cream); color: var(--ink-dark); padding: var(--gap-md) calc(var(--pad-x) * 0.8); max-width: 32vw; }
+        .info-card h3 { color: var(--ink-dark); margin-bottom: var(--gap-sm); }
+        .info-card p { color: var(--ink-dark-2); }
+        .bullet-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: var(--gap-sm); }
+        .bullet-list li { display: grid; grid-template-columns: 1.4em 1fr; font-size: 1.5vw; }
+        .bullet-list li::before { content: "—"; font-family: 'DM Mono', monospace; color: var(--accent-orange); }
+        .split-layout { display: grid; grid-template-columns: 1fr 1fr; gap: var(--pad-x); flex-grow: 1; align-items: center; }
+        .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .slide.active .reveal { opacity: 1; transform: translateY(0); }
+        .reveal:nth-child(1) { transition-delay: 0.1s; }
+        .reveal:nth-child(2) { transition-delay: 0.2s; }
+        .reveal:nth-child(3) { transition-delay: 0.3s; }
+        em { color: var(--accent-orange); font-style: normal; }
+        #nav-dots { display: flex; gap: 8px; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 100; }
+        .nav-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.2); border: none; cursor: pointer; transition: 0.3s; padding: 0; }
+        .nav-dot.is-active { background: rgba(255,255,255,0.8); transform: scale(1.5); }
+    </style>
+</head>
+<body>
+    <div class="deck-viewport">
+        <main class="deck-stage" id="deckStage">
+            <!-- SLIDE 01: COVER -->
+            <section class="slide dark active">
+                <div class="slide-content" style="justify-content: center; position: relative;">
+                    <div style="position: absolute; top: var(--pad-y); left: var(--pad-x);"><span class="kicker">Módulo: Soporte Técnico</span></div>
+                    <div><h1 class="display reveal">Piensa,<br>luego<br>conecta.</h1></div>
+                    <div style="position: absolute; bottom: var(--pad-y); left: var(--pad-x);"><p class="lead reveal">Evaluación Diagnóstica: Un viaje socrático por el ESP32.</p></div>
+                    <div style="position: absolute; bottom: var(--pad-y); right: var(--pad-x);">
+                        <div class="info-card reveal">
+                            <h3 class="h3">UETS 2026-2027</h3>
+                            <p class="body-copy">Domina el Starter-kit: GPIO, Pull-Down, ADC 12-bits y Lógica Arduino.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- SLIDE 02: THE CHALLENGE -->
+            <section class="slide dark">
+                <div class="slide-content">
+                    <header class="chrome-band label"><span>Fase 1: Digital</span><span>02</span></header>
+                    <div class="split-layout">
+                        <div>
+                            <span class="kicker reveal">El Problema</span>
+                            <h2 class="h2 reveal" style="margin-bottom: var(--gap-md);">El estado flotante.</h2>
+                            <p class="lead reveal">Imagina que conectas un pulsador directamente al ESP32 sin nada más. Cuando no lo presionas... ¿qué voltaje lee el pin GPIO4?</p>
+                        </div>
+                        <div>
+                            <div class="info-card reveal" style="max-width: 100%;">
+                                <h3 class="h3">Piénsalo</h3>
+                                <p class="body-copy" style="font-size: 1.5vw; line-height: 1.5;">Si el circuito está "abierto", el pin actúa como una antena. Capta ruido electromagnético. Su estado es impredecible.<br><br>¿Cómo obligamos al pin a leer 0V (LOW) cuando el botón no está presionado?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <footer class="foot-band label"><span>Socrático</span><span>Press Right ➔</span></footer>
+                </div>
+            </section>
+            <!-- SLIDE 03: THE SOLUTION -->
+            <section class="slide dark">
+                <div class="slide-content">
+                    <header class="chrome-band label"><span>Fase 1: Digital</span><span>03</span></header>
+                    <div style="max-width: 70%;">
+                        <span class="kicker reveal">La Solución</span>
+                        <h2 class="h2 reveal" style="margin-bottom: var(--gap-md);">Resistencia Pull-Down.</h2>
+                        <ul class="bullet-list reveal">
+                            <li>Obliga al circuito a conectarse a GND (0V) a través de una resistencia de 10kΩ.</li>
+                            <li>Cuando presionas el botón, la corriente de 3.3V "supera" la resistencia y el pin lee HIGH.</li>
+                            <li>En código: <em>if (digitalRead(4) == HIGH)</em> encenderá el LED correspondiente.</li>
+                        </ul>
+                    </div>
+                    <footer class="foot-band label"><span>Bloque 1 · GPIO</span><span>Wokwi Setup</span></footer>
+                </div>
+            </section>
+            <!-- SLIDE 04: ADC QUESTION -->
+            <section class="slide dark">
+                <div class="slide-content">
+                    <header class="chrome-band label"><span>Fase 2: Analógico</span><span>04</span></header>
+                    <div class="split-layout">
+                        <div>
+                            <span class="kicker reveal">Matemáticas</span>
+                            <h2 class="h2 reveal" style="margin-bottom: var(--gap-md);">El lenguaje del ESP32.</h2>
+                            <p class="lead reveal">Giras el potenciómetro a la mitad. El voltaje real es 1.65V. Pero el ESP32 no entiende "Voltios". Entiende de bits.</p>
+                        </div>
+                        <div>
+                            <div class="info-card reveal" style="max-width: 100%;">
+                                <h3 class="h3">Resolvamos</h3>
+                                <p class="body-copy" style="font-size: 1.5vw; line-height: 1.5;">El ESP32 tiene un ADC de 12 bits. Esto significa que puede contar hasta 2<sup>12</sup> valores.<br><br>Si el mínimo es 0 y el máximo es 4095 (para 3.3V)... ¿Qué número entero leerá <em>analogRead(34)</em> si estás exactamente en la mitad del potenciómetro?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <footer class="foot-band label"><span>Socrático</span><span>Press Right ➔</span></footer>
+                </div>
+            </section>
+            <!-- SLIDE 05: ADC ANSWER -->
+            <section class="slide dark">
+                <div class="slide-content">
+                    <header class="chrome-band label"><span>Fase 2: Analógico</span><span>05</span></header>
+                    <div>
+                        <span class="kicker reveal">La Fórmula</span>
+                        <h2 class="h2 reveal" style="margin-bottom: var(--gap-md);">De bits a Voltios.</h2>
+                        <ul class="bullet-list reveal" style="margin-bottom: var(--gap-lg);">
+                            <li>El valor a la mitad es aprox <em>2047</em>.</li>
+                            <li>Para mostrar el voltaje en pantalla, usamos regla de tres:</li>
+                        </ul>
+                        <div class="reveal" style="padding: 2vw; border: 1px solid var(--border-on-dark);">
+                            <p class="label" style="color: var(--ink-cream); font-size: 1.2vw; text-transform: none;">
+                                float voltaje = lecturaADC * (3.3 / 4095.0);
+                            </p>
+                        </div>
+                    </div>
+                    <footer class="foot-band label"><span>Bloque 2 · ADC</span><span>Wokwi Setup</span></footer>
+                </div>
+            </section>
+        </main>
+    </div>
+    <nav id="nav-dots"></nav>
+    <script>
+        (function() {
+            const deck = document.getElementById('deckStage');
+            const dotsNav = document.getElementById('nav-dots');
+            const slides = Array.from(document.querySelectorAll('.slide'));
+            const total = slides.length;
+            let current = 0;
+            slides.forEach((_, i) => {
+                const dot = document.createElement('button');
+                dot.className = 'nav-dot' + (i === 0 ? ' is-active' : '');
+                dot.addEventListener('click', () => goTo(i));
+                dotsNav.appendChild(dot);
+            });
+            function goTo(index) {
+                if(index < 0 || index >= total) return;
+                slides[current].classList.remove('active');
+                current = index;
+                slides[current].classList.add('active');
+                Array.from(dotsNav.children).forEach((d, i) => { d.classList.toggle('is-active', i === current); });
+            }
+            const scale = () => {
+                const factor = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+                const x = (window.innerWidth - 1920 * factor) / 2;
+                const y = (window.innerHeight - 1080 * factor) / 2;
+                deck.style.transform = `translate(${x}px, ${y}px) scale(${factor})`;
+            };
+            window.addEventListener('resize', scale);
+            scale();
+            document.addEventListener('keydown', (e) => {
+                if(['ArrowRight', ' ', 'ArrowDown'].includes(e.key)) goTo(current + 1);
+                if(['ArrowLeft', 'ArrowUp'].includes(e.key)) goTo(current - 1);
+            });
+        })();
+    </script>
+</body>
+</html>
