@@ -7,7 +7,8 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=DM+Sans:wght@400&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
 
     <style>
         html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #232E26; font-family: 'DM Sans', sans-serif; }
@@ -36,10 +37,10 @@
             --bg-dark: #232E26;
             --bg-cream: #EDE6D0;
             --ink-cream: #F0E8D2;
-            --ink-cream-2: rgba(240, 232, 210, 0.75);
-            --ink-cream-3: rgba(240, 232, 210, 0.4);
+            --ink-cream-2: rgba(240, 232, 210, 0.85);
+            --ink-cream-3: rgba(240, 232, 210, 0.45);
             --ink-dark: #1E2820;
-            --ink-dark-2: rgba(30, 40, 32, 0.75);
+            --ink-dark-2: rgba(30, 40, 32, 0.8);
             --accent-orange: #E07A5F;
             --border-on-dark: rgba(240, 232, 210, 0.15);
             --border-on-cream: rgba(30, 40, 32, 0.15);
@@ -84,18 +85,20 @@
         
         .info-card { 
             background: var(--bg-cream); color: var(--ink-dark); 
-            padding: var(--gap-md) var(--gap-lg); max-width: 38vw; 
-            border-radius: 4px; box-shadow: 16px 16px 0px rgba(0,0,0,0.2);
+            padding: var(--gap-md) var(--gap-lg); max-width: 42vw; 
+            border-radius: 6px; box-shadow: 16px 16px 0px rgba(0,0,0,0.3);
             border: 2px solid var(--ink-dark);
         }
         .info-card h3 { color: var(--ink-dark); margin-bottom: var(--gap-sm); }
         .info-card p, .info-card li { color: var(--ink-dark-2); }
         
-        .bullet-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: var(--gap-md); }
-        .bullet-list li { display: grid; grid-template-columns: 1.5em 1fr; font-size: 1.8vw; line-height: 1.4; color: var(--ink-cream); }
-        .bullet-list li::before { content: "➔"; font-family: 'DM Mono', monospace; color: var(--accent-orange); font-size: 1.2em; }
+        /* Fixed bullet list to avoid grid word-wrapping bugs */
+        .bullet-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--gap-md); }
+        .bullet-list li { display: flex; align-items: flex-start; gap: 0.8em; font-size: 1.8vw; line-height: 1.45; color: var(--ink-cream); }
+        .bullet-list li .bullet-icon { color: var(--accent-orange); font-family: 'DM Mono', monospace; font-size: 1.2em; line-height: 1.2; flex-shrink: 0; }
+        .bullet-list li .bullet-text { flex: 1; }
         
-        .split-layout { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: calc(var(--pad-x) * 1.5); flex-grow: 1; align-items: center; }
+        .split-layout { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--pad-x) * 1.2); flex-grow: 1; align-items: center; }
         
         .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s cubic-bezier(0.2, 1, 0.3, 1), transform 0.8s cubic-bezier(0.2, 1, 0.3, 1); }
         .slide.active .reveal { opacity: 1; transform: translateY(0); }
@@ -105,6 +108,56 @@
         .reveal:nth-child(4) { transition-delay: 0.55s; }
         
         em { color: var(--accent-orange); font-style: normal; font-weight: 600; }
+
+        /* Code block styling */
+        .code-box {
+            background: #18221B;
+            border: 2px solid rgba(240, 232, 210, 0.2);
+            border-radius: 8px;
+            box-shadow: 12px 12px 0px rgba(0,0,0,0.3);
+            overflow: hidden;
+            margin-top: 1.5vh;
+        }
+        .code-box-header {
+            background: rgba(240, 232, 210, 0.06);
+            padding: 0.8vh 1.2vw;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(240, 232, 210, 0.1);
+        }
+        .code-box-dots {
+            display: flex;
+            gap: 6px;
+        }
+        .code-box-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .dot-red { background: #ff5f56; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #27c93f; }
+        .code-box-title {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.8vw;
+            color: var(--ink-cream-3);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        pre[class*="language-"] {
+            margin: 0 !important;
+            padding: 1.5vw !important;
+            background: transparent !important;
+            font-family: 'Fira Code', 'DM Mono', monospace !important;
+            font-size: 1.35vw !important;
+            line-height: 1.6 !important;
+        }
+        code[class*="language-"] {
+            font-family: 'Fira Code', 'DM Mono', monospace !important;
+            font-size: 1.35vw !important;
+        }
         
         #nav-dots { display: flex; gap: 12px; position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 100; }
         .nav-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(240, 232, 210, 0.3); border: none; cursor: pointer; transition: all 0.3s cubic-bezier(0.2, 1, 0.3, 1); padding: 0; }
@@ -142,10 +195,22 @@
                         </div>
                         <div>
                             <ul class="bullet-list reveal">
-                                <li>Haz <em>Fork</em> de este repositorio hacia tu cuenta.</li>
-                                <li>Resuelve el código en tu rama <em>main</em>.</li>
-                                <li>Haz Commits semánticos (ej. <em>feat: resolver ADC</em>).</li>
-                                <li>Abre un <em>Pull Request</em> entregando tu trabajo.</li>
+                                <li>
+                                    <span class="bullet-icon">➔</span>
+                                    <span class="bullet-text">Haz <em>Fork</em> de este repositorio hacia tu cuenta personal.</span>
+                                </li>
+                                <li>
+                                    <span class="bullet-icon">➔</span>
+                                    <span class="bullet-text">Resuelve los archivos <em>.ino</em> dentro de tu rama <em>main</em>.</span>
+                                </li>
+                                <li>
+                                    <span class="bullet-icon">➔</span>
+                                    <span class="bullet-text">Haz Commits semánticos (ej. <em>feat: resolver ADC</em>).</span>
+                                </li>
+                                <li>
+                                    <span class="bullet-icon">➔</span>
+                                    <span class="bullet-text">Abre un <em>Pull Request</em> formal entregando tu solución.</span>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -166,7 +231,7 @@
                         <div>
                             <div class="info-card reveal" style="max-width: 100%;">
                                 <h3 class="h3">Pruebas Automáticas</h3>
-                                <p class="body-copy" style="font-size: 1.5vw; line-height: 1.5;">Cada vez que haces <em>git push</em>, un robot de GitHub verifica dos cosas:<br><br>1. Que el nombre de tu commit sea correcto.<br>2. Que tu código compile sin errores (Tests).<br><br>Solo podrás entregar si tienes el <em>Check Verde ✅</em>.</p>
+                                <p class="body-copy" style="font-size: 1.4vw; line-height: 1.5;">Cada vez que haces <em>git push</em>, un robot de GitHub verifica dos cosas:<br><br>1. Que el nombre de tu commit sea correcto (Commitlint).<br>2. Que tu firmware compile en PlatformIO sin errores sintácticos.<br><br>¡Solo podrás calificar si tienes el <em>Check Verde ✅</em>!</p>
                             </div>
                         </div>
                     </div>
@@ -178,18 +243,27 @@
             <section class="slide dark">
                 <div class="slide-content">
                     <header class="chrome-band label"><span>Herramientas</span><span>04</span></header>
-                    <div style="max-width: 70%;">
-                        <span class="kicker reveal">VS Code</span>
-                        <h2 class="h2 reveal" style="margin-bottom: var(--gap-md);">Simula sin salir del editor.</h2>
-                        <ul class="bullet-list reveal" style="margin-bottom: var(--gap-lg);">
-                            <li>Abre el proyecto en VSCode con la extensión de <em>PlatformIO</em>.</li>
-                            <li>Compila haciendo clic en el ✅ de la barra inferior.</li>
-                            <li>Presiona <em>F1</em> y escribe: <em>Wokwi: Start Simulator</em>.</li>
-                        </ul>
-                        <div class="reveal" style="padding: 2vw; border: 1px solid var(--border-on-dark);">
-                            <p class="label" style="color: var(--ink-cream); font-size: 1.2vw; text-transform: none;">
-                                ¡Mira tu ESP32 correr en vivo al lado de tu código!
-                            </p>
+                    <div class="split-layout">
+                        <div>
+                            <span class="kicker reveal">VS Code</span>
+                            <h2 class="h2 reveal" style="margin-bottom: var(--gap-md);">Simula sin salir del editor.</h2>
+                            <p class="lead reveal">Usa la extensión oficial de Wokwi para VS Code y PlatformIO.</p>
+                        </div>
+                        <div>
+                            <ul class="bullet-list reveal">
+                                <li>
+                                    <span class="bullet-icon">➔</span>
+                                    <span class="bullet-text">Abre la carpeta del bloque en VS Code.</span>
+                                </li>
+                                <li>
+                                    <span class="bullet-icon">➔</span>
+                                    <span class="bullet-text">Compila el proyecto con <em>PlatformIO: Build</em> (ícono ✅).</span>
+                                </li>
+                                <li>
+                                    <span class="bullet-icon">➔</span>
+                                    <span class="bullet-text">Presiona <em>F1</em> y escribe: <em>Wokwi: Start Simulator</em>.</span>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                     <footer class="foot-band label"><span>Wokwi</span><span>Press Right ➔</span></footer>
@@ -209,29 +283,59 @@
                         <div>
                             <div class="info-card reveal" style="max-width: 100%;">
                                 <h3 class="h3">Piénsalo</h3>
-                                <p class="body-copy" style="font-size: 1.5vw; line-height: 1.5;">Si el circuito está "abierto", el pin actúa como una antena. Capta ruido electromagnético. Su estado es impredecible.<br><br>¿Cómo obligamos al pin a leer 0V (LOW) cuando el botón no está presionado?</p>
+                                <p class="body-copy" style="font-size: 1.4vw; line-height: 1.5;">Si el circuito está "abierto", el pin actúa como una antena que capta ruido electromagnético. Su lectura oscila caóticamente.<br><br>¿Cómo obligamos al pin a leer 0V (LOW) de forma fija cuando el botón no está presionado?</p>
                             </div>
                         </div>
                     </div>
                     <footer class="foot-band label"><span>Socrático</span><span>Press Right ➔</span></footer>
                 </div>
             </section>
+
             <!-- SLIDE 06: THE SOLUTION -->
             <section class="slide dark">
                 <div class="slide-content">
                     <header class="chrome-band label"><span>Fase 1: Digital</span><span>06</span></header>
-                    <div style="max-width: 70%;">
-                        <span class="kicker reveal">La Solución</span>
-                        <h2 class="h2 reveal" style="margin-bottom: var(--gap-md);">Resistencia Pull-Down.</h2>
-                        <ul class="bullet-list reveal">
-                            <li>Obliga al circuito a conectarse a GND (0V) a través de una resistencia de 10kΩ.</li>
-                            <li>Cuando presionas el botón, la corriente de 3.3V "supera" la resistencia y el pin lee HIGH.</li>
-                            <li>En código: <em>if (digitalRead(4) == HIGH)</em> encenderá el LED correspondiente.</li>
-                        </ul>
+                    <div class="split-layout">
+                        <div>
+                            <span class="kicker reveal">La Solución</span>
+                            <h2 class="h2 reveal" style="margin-bottom: var(--gap-md);">Resistencia Pull-Down.</h2>
+                            <ul class="bullet-list reveal">
+                                <li>
+                                    <span class="bullet-icon">➔</span>
+                                    <span class="bullet-text">Conecta una resistencia de <em>10 kΩ</em> desde el pin a GND.</span>
+                                </li>
+                                <li>
+                                    <span class="bullet-icon">➔</span>
+                                    <span class="bullet-text">Al presionar, los 3.3V superan la resistencia y el pin lee <em>HIGH</em>.</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="reveal">
+                            <div class="code-box">
+                                <div class="code-box-header">
+                                    <div class="code-box-dots">
+                                        <span class="code-box-dot dot-red"></span>
+                                        <span class="code-box-dot dot-yellow"></span>
+                                        <span class="code-box-dot dot-green"></span>
+                                    </div>
+                                    <span class="code-box-title">bloque_1.ino</span>
+                                </div>
+                                <pre><code class="language-cpp">int estado = digitalRead(4);
+
+if (estado == HIGH) {
+  digitalWrite(23, HIGH); // LED Rojo ON
+  digitalWrite(22, LOW);  // LED Verde OFF
+} else {
+  digitalWrite(23, LOW);  // LED Rojo OFF
+  digitalWrite(22, HIGH); // LED Verde ON
+}</code></pre>
+                            </div>
+                        </div>
                     </div>
                     <footer class="foot-band label"><span>Bloque 1 · GPIO</span><span>Wokwi Setup</span></footer>
                 </div>
             </section>
+
             <!-- SLIDE 07: ADC QUESTION -->
             <section class="slide dark">
                 <div class="slide-content">
@@ -240,33 +344,58 @@
                         <div>
                             <span class="kicker reveal">Matemáticas</span>
                             <h2 class="h2 reveal" style="margin-bottom: var(--gap-md);">El lenguaje del ESP32.</h2>
-                            <p class="lead reveal">Giras el potenciómetro a la mitad. El voltaje real es 1.65V. Pero el ESP32 no entiende "Voltios". Entiende de bits.</p>
+                            <p class="lead reveal">Giras el potenciómetro a la mitad (1.65V). Pero el microcontrolador no mide "Voltios". Mide bits.</p>
                         </div>
                         <div>
                             <div class="info-card reveal" style="max-width: 100%;">
                                 <h3 class="h3">Resolvamos</h3>
-                                <p class="body-copy" style="font-size: 1.5vw; line-height: 1.5;">El ESP32 tiene un ADC de 12 bits. Esto significa que puede contar hasta 2<sup>12</sup> valores.<br><br>Si el mínimo es 0 y el máximo es 4095 (para 3.3V)... ¿Qué número entero leerá <em>analogRead(34)</em> si estás exactamente en la mitad del potenciómetro?</p>
+                                <p class="body-copy" style="font-size: 1.4vw; line-height: 1.5;">El ESP32 tiene un ADC de <strong>12 bits</strong> (2<sup>12</sup> = 4096 valores: 0 a 4095).<br><br>Si 0V = 0 y 3.3V = 4095... ¿Qué número entero leerá <em>analogRead(34)</em> si estás en la mitad del potenciómetro?</p>
                             </div>
                         </div>
                     </div>
                     <footer class="foot-band label"><span>Socrático</span><span>Press Right ➔</span></footer>
                 </div>
             </section>
+
             <!-- SLIDE 08: ADC ANSWER -->
             <section class="slide dark">
                 <div class="slide-content">
                     <header class="chrome-band label"><span>Fase 2: Analógico</span><span>08</span></header>
-                    <div>
-                        <span class="kicker reveal">La Fórmula</span>
-                        <h2 class="h2 reveal" style="margin-bottom: var(--gap-md);">De bits a Voltios.</h2>
-                        <ul class="bullet-list reveal" style="margin-bottom: var(--gap-lg);">
-                            <li>El valor a la mitad es aprox <em>2047</em>.</li>
-                            <li>Para mostrar el voltaje en pantalla, usamos regla de tres:</li>
-                        </ul>
-                        <div class="reveal" style="padding: 2vw; border: 1px solid var(--border-on-dark);">
-                            <p class="label" style="color: var(--ink-cream); font-size: 1.2vw; text-transform: none;">
-                                float voltaje = lecturaADC * (3.3 / 4095.0);
-                            </p>
+                    <div class="split-layout">
+                        <div>
+                            <span class="kicker reveal">La Fórmula</span>
+                            <h2 class="h2 reveal" style="margin-bottom: var(--gap-md);">De bits a Voltios.</h2>
+                            <ul class="bullet-list reveal">
+                                <li>
+                                    <span class="bullet-icon">➔</span>
+                                    <span class="bullet-text">El valor en la mitad es aprox <em>2047</em> (ADC).</span>
+                                </li>
+                                <li>
+                                    <span class="bullet-icon">➔</span>
+                                    <span class="bullet-text">Dividimos siempre para <em>4095.0</em> como float.</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="reveal">
+                            <div class="code-box">
+                                <div class="code-box-header">
+                                    <div class="code-box-dots">
+                                        <span class="code-box-dot dot-red"></span>
+                                        <span class="code-box-dot dot-yellow"></span>
+                                        <span class="code-box-dot dot-green"></span>
+                                    </div>
+                                    <span class="code-box-title">bloque_2.ino</span>
+                                </div>
+                                <pre><code class="language-cpp">int lecturaADC = analogRead(34);
+
+// Regla de tres directa (0 a 3.3V)
+float voltaje = lecturaADC * (3.3 / 4095.0);
+
+Serial.print("ADC: ");
+Serial.print(lecturaADC);
+Serial.print(" -> Voltaje: ");
+Serial.println(voltaje, 2);</code></pre>
+                            </div>
                         </div>
                     </div>
                     <footer class="foot-band label"><span>Bloque 2 · ADC</span><span>Wokwi Setup</span></footer>
@@ -275,6 +404,11 @@
         </main>
     </div>
     <nav id="nav-dots"></nav>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+    
     <script>
         (function() {
             const deck = document.getElementById('deckStage');
