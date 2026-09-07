@@ -1,0 +1,17 @@
+{
+  "folders": [
+    {
+      "name": "🟢 Bloque 1: GPIO Semáforo",
+      "path": "bloque_1"
+    },
+    {
+      "name": "🟡 Bloque 2: ADC Potenciómetro",
+      "path": "bloque_2"
+    },
+    {
+      "name": "📦 Raíz del Repositorio",
+      "path": "."
+    }
+  ],
+  "settings": {}
+}
